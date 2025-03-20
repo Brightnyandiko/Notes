@@ -29,6 +29,7 @@ class _NotesPageState extends State<NotesPage> {
   //   // on app startup, fetch existing notes
   //   readNotes();
   // }
+
   //create a note
   void createNote() {
     showDialog(
@@ -61,6 +62,7 @@ class _NotesPageState extends State<NotesPage> {
   void readNotes() {
     // if (context.mounted) {
       context.read<NoteDatabase>().fetchNotes();
+    //   context.watch<NoteDatabase>().fetchNotes();
     // }
 
   }
@@ -74,11 +76,29 @@ class _NotesPageState extends State<NotesPage> {
         builder: (context) => AlertDialog(
           title: Text("Update Note"),
           content: TextField(controller: textController,),
+          actions: [
+            MaterialButton(
+                onPressed: () {
+                  // update note in db
+                  context.read<NoteDatabase>().updateNote(note.id, textController.text);
+
+                  //clear controller
+                  textController.clear();
+
+                  //pop dialog box
+                  Navigator.pop(context);
+                },
+              child: const Text("Update"),
+            )
+          ],
         ),
     );
   }
 
   //Delete a note
+  void deleteNote (int id) {
+    context.read<NoteDatabase>().deleteNote(id);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -103,6 +123,22 @@ class _NotesPageState extends State<NotesPage> {
             //list tile UI
             return ListTile(
               title: Text(note.text),
+              trailing: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  //edit button
+                  IconButton(
+                      onPressed: () => updateNote(note),
+                      icon: Icon(Icons.edit)
+                  ),
+
+                  //delete button
+                  IconButton(
+                  onPressed: () => deleteNote(note.id),
+                  icon: Icon(Icons.delete)
+                  )
+                ],
+              ),
             );
           }
       ),
